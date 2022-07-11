@@ -29,8 +29,6 @@ FlagRef f_version;
 FlagRef f_out_dir;
 FlagRef f_css;
 FlagRef f_script;
-// TODO: script-src and css-href flags to indicate a simple import (how css and script flags work currently).
-// TODO: css and script flags to indicate injection of contents of the files.
 FlagRef f_css_inject;
 FlagRef f_script_inject;
 FlagRef f_enable_hljs;
