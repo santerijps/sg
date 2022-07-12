@@ -15,10 +15,20 @@
 #endif
 
 // List of codes: https://i.stack.imgur.com/gpDPE.png
+// TODO: Use different codes for Windows! These don't work in PowerShell!
 #define COLOR_RESET "\033[0m"
 #define COLOR_BOLD "\033[1m"
 #define COLOR_INVERSE "\033[7m"
 #define COLOR_TEXT_BLACK "\033[30m"
+
+#define errorf(...) fprintf(stderr, __VA_ARGS__)
+#define debugf(...) fprintf(stderr, "[%s:%d %s] ", __FILE__, __LINE__, __FUNCTION__); fprintf(stderr, __VA_ARGS__)
+
+int IsAMarkdownFile(char *path)
+{
+  size_t l = strlen(path);
+  return l > 3 && path[l - 3] == '.' && path[l - 2] == 'm' && path[l - 1] == 'd';
+}
 
 char* ToTitle(char *s)
 {

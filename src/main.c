@@ -1,5 +1,7 @@
 #include "main.h"
 
+// TODO: How to handle document titles?
+
 int main(int argc, String argv[])
 {
   ParseFlags(argc, argv);
@@ -18,7 +20,7 @@ int main(int argc, String argv[])
   }
   else
   {
-    printf("%s error: no input file or directory provided. Type '%s --help' for app usage.", APP_NAME, APP_NAME);
+    errorf("%s error: no input file or directory provided. Type '%s --help' for app usage.", APP_NAME, APP_NAME);
     return 1;
   }
   return 0;
@@ -43,7 +45,7 @@ void PrintAppUsage()
 {
   printf(
     "\n"
-    COLOR_INVERSE COLOR_BOLD "%s: %s\n" COLOR_RESET
+    "%s: %s\n"
     "\n"
     "Basic usage: %s [options...] file... [dir...]\n"
     "\n"
@@ -73,7 +75,7 @@ void PrintAppUsage()
     "\n"
     "  --hljs-style     <style>   The highlight.js style to use in code highlighting.\n"
     "                             E.g. github-dark, base16/darcula etc. (without the .css file extension!)\n"
-    "                             Refer to https://github.com/highlightjs/highlight.js/tree/main/src/styles for list of styles.\n"
+    "                             Refer to https://github.com/highlightjs/highlight.js/tree/main/src/styles for a list of styles.\n"
     "\n"
     , APP_NAME, APP_DESCRIPTION
     , APP_NAME, APP_NAME
@@ -98,10 +100,14 @@ void ConvertMarkdownToHTML()
   }
   if (!fs_path_exists(out_dir_path))
   {
-    fs_create_dir(out_dir_path);
+    // TODO: The entire directory path should be created
+    // in case of a path that contains more than 1 non-existant directory.
+    if (!fs_create_dir(out_dir_path))
+    {
+      debugf("%s requires multiple directories to be created. This is not supported (yet).\n", out_dir_path);
+      return;
+    }
   }
-  // Iterate through all the input paths.
-  // Act accordingly.
   for (int i = 0; i < f_args.count; i++)
   {
     if (fs_is_file(f_args.values[i]))
@@ -137,7 +143,7 @@ void ConvertFile(const String input_file_path, const String out_dir_path)
   output_file = fopen(output_file_path, "w");
   if (output_file == NULL)
   {
-    fprintf(stderr, "Could not open output file!\n");
+    errorf("Could not open output file!\n");
     return;
   }
 
@@ -180,13 +186,13 @@ void ConvertFile(const String input_file_path, const String out_dir_path)
     String path = FlagStrVal(f_css_inject, i);
     if (!fs_path_exists(path))
     {
-      fprintf(stderr, "File does not exist: %s\n", path);
+      errorf("File does not exist: %s\n", path);
       continue;
     }
     String data = fs_read_file(path);
     if (data == NULL)
     {
-      fprintf(stderr, "Failed to read file: %s\n", path);
+      errorf("Failed to read file: %s\n", path);
       continue;
     }
     fprintf(output_file, TMPLT_CSS_INJECT, data);
@@ -199,13 +205,13 @@ void ConvertFile(const String input_file_path, const String out_dir_path)
     String path = FlagStrVal(f_script_inject, i);
     if (!fs_path_exists(path))
     {
-      fprintf(stderr, "File does not exist: %s\n", path);
+      errorf("File does not exist: %s\n", path);
       continue;
     }
     String data = fs_read_file(path);
     if (data == NULL)
     {
-      fprintf(stderr, "Failed to read file: %s\n", path);
+      errorf("Failed to read file: %s\n", path);
       continue;
     }
     fprintf(output_file, TMPLT_SCRIPT_INJECT, data);
@@ -217,7 +223,7 @@ void ConvertFile(const String input_file_path, const String out_dir_path)
   result = md_html(input_file_data, strlen(input_file_data), OnConvertChunk, output_file, MD_PARSER_FLAGS, 0);
   if (result != 0)
   {
-    fprintf(stderr, "Failed to convert MD to HTML!\n");
+    errorf("Failed to convert MD to HTML!\n");
     return;
   }
   fwrite(TMPLT_HTML_BOTTOM, strlen(TMPLT_HTML_BOTTOM), 1, output_file);
@@ -237,13 +243,13 @@ void ConvertDirectory(String input_dir_path, const String out_dir_path)
   {
     if (!fs_create_dir(out_dir))
     {
-      fprintf(stderr, "ConvertDirectory: Could not create directory!\n");
+      errorf("ConvertDirectory: Could not create directory!\n");
     }
   }
 
   if ((dir = opendir(input_dir_path)) == NULL)
   {
-    fprintf(stderr, "ConvertDirectory: Could not open directory!\n");
+    errorf("ConvertDirectory: Could not open directory!\n");
     return;
   }
 
@@ -256,9 +262,14 @@ void ConvertDirectory(String input_dir_path, const String out_dir_path)
     {
       ConvertDirectory(path, out_dir);
     }
-    else
+    else if (IsAMarkdownFile(path))
     {
       ConvertFile(path, out_dir);
+    }
+    else
+    {
+      // TODO: Copy the file to the new destination
+      debugf("%s should be copied over to %s. This is not yet supported.", path, out_dir);
     }
   }
 

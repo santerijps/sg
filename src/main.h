@@ -1,7 +1,9 @@
 #pragma once
 
-// TODO: Add include guards!
-#include <stdio.h>
+#ifndef _INC_STDIO
+  #include <stdio.h>
+#endif
+
 #include <libgen.h>
 
 #include "util.h"
