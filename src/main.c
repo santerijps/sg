@@ -220,6 +220,7 @@ void ConvertFile(const String input_file_path, const String out_dir_path)
 
   fprintf(output_file, TMPLT_HTML_MIDDLE);
   input_file_data = fs_read_file(input_file_path);
+  ConvertLocalLinks(input_file_data); // Temporary
   result = md_html(input_file_data, strlen(input_file_data), OnConvertChunk, output_file, MD_PARSER_FLAGS, 0);
   if (result != 0)
   {

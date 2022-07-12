@@ -11,3 +11,6 @@ prod: bin src/main.c
 
 bin:
 	mkdir bin
+
+test:
+	bin/$(NAME).dev.exe --enable-hljs --hljs-style nord --css https://cdn.jsdelivr.net/npm/water.css@2/out/light.css examples/index.md

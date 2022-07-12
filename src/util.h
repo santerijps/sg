@@ -79,4 +79,13 @@ char* RemoveExtension(char *s)
   return r;
 }
 
+void ConvertLocalLinks(char *text)
+{
+  // Look for "](anything.md)" and replace .md with .html
+  for (int i = 0; i < strlen(text); i++)
+  {
+    
+  }
+}
+
 #endif
