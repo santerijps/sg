@@ -79,13 +79,60 @@ char* RemoveExtension(char *s)
   return r;
 }
 
-void ConvertLocalLinks(char *text)
+char* ReplaceString(char *s, const char *search, const char *replace)
+{
+  size_t i, j;
+  size_t s_len = strlen(s), search_len = strlen(search), replace_len = strlen(replace);
+  short match;
+
+  size_t ri, capacity = s_len;
+  char *r = (char*) malloc(sizeof(char) * capacity);
+  memset(r, 0, capacity);
+
+  for (i = 0, ri = 0; i < s_len; i++, ri++)
+  {
+    match = 1;
+    for (j = 0; j < search_len; j++)
+    {
+      if (s[i + j] != search[j])
+      {
+        match = 0;
+        break;
+      }
+    }
+    if (match == 1)
+    {
+      if ((ri + 1 + replace_len) >= capacity)
+      {
+        capacity *= 2;
+        r = (char*) realloc(r, sizeof(char) * capacity);
+      }
+      strcat(r, replace);
+      i += search_len - 1;
+      ri += replace_len - 1;
+    }
+    else
+    {
+      r[ri] = s[i];
+    }
+  }
+
+  for (i = ri; i < capacity; i++)
+  {
+    r[i] = '\0';
+  }
+
+  return r;
+}
+
+/**
+ * Converts local links to .md files to .html files.
+ * This is required to make links work after building.
+*/
+char* ConvertLocalLinks(char *s)
 {
   // Look for "](anything.md)" and replace .md with .html
-  for (int i = 0; i < strlen(text); i++)
-  {
-    
-  }
+  return ReplaceString(s, ".md", ".html");
 }
 
 #endif

@@ -125,7 +125,7 @@ void ConvertFile(const String input_file_path, const String out_dir_path)
 {
   FILE *output_file;
   String output_file_basename, output_file_path;
-  String input_file_basename, input_file_data;
+  String input_file_basename, input_file_data, formatted_data;
   int result, i, len;
 
   // Resolve the output file path.
@@ -220,8 +220,13 @@ void ConvertFile(const String input_file_path, const String out_dir_path)
 
   fprintf(output_file, TMPLT_HTML_MIDDLE);
   input_file_data = fs_read_file(input_file_path);
-  ConvertLocalLinks(input_file_data); // Temporary
-  result = md_html(input_file_data, strlen(input_file_data), OnConvertChunk, output_file, MD_PARSER_FLAGS, 0);
+  if (input_file_data == NULL)
+  {
+    errorf("Failed to read file: %s\n", input_file_path);
+    return;
+  }
+  formatted_data = ConvertLocalLinks(input_file_data);
+  result = md_html(formatted_data, strlen(formatted_data), OnConvertChunk, output_file, MD_PARSER_FLAGS, 0);
   if (result != 0)
   {
     errorf("Failed to convert MD to HTML!\n");
@@ -231,6 +236,7 @@ void ConvertFile(const String input_file_path, const String out_dir_path)
   fclose(output_file);
   free(input_file_data);
   free(output_file_path);
+  free(formatted_data);
 }
 
 void ConvertDirectory(String input_dir_path, const String out_dir_path)
