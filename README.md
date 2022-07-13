@@ -38,3 +38,12 @@ Compilation options:
                              E.g. github-dark, base16/darcula etc. (without the .css file extension!)
                              Refer to https://github.com/highlightjs/highlight.js/tree/main/src/styles for list of styles.
 ```
+
+## Setting up
+
+```txt
+git clone https://github.com/santerijps/sg
+cd sg
+git submodule --init
+make
+```
